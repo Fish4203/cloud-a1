@@ -1,0 +1,29 @@
+{
+  "name": "a1",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.ts",
+  "scripts": {
+    "build": "pnpm tsc",
+    "start": "node dist/index.js",
+    "dev": "nodemon src/index.ts",
+    "db": "ts-node src/create-db.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.767.0",
+    "@aws-sdk/client-s3": "^3.758.0",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.13.10",
+    "nodemon": "^3.1.9",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.2"
+  },
+  "type": "module"
+}
