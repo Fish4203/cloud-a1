@@ -44,10 +44,6 @@ const createMusicTableCommand = new CreateTableCommand({
       AttributeName: "album",
       AttributeType: "S",
     },
-    {
-      AttributeName: "img_url",
-      AttributeType: "S",
-    },
   ],
   TableName: MUSIC_TABLE,
   KeySchema: [
@@ -57,16 +53,12 @@ const createMusicTableCommand = new CreateTableCommand({
     },
   ],
   BillingMode: "PAY_PER_REQUEST",
-  LocalSecondaryIndexes: [
+  GlobalSecondaryIndexes: [
     {
       KeySchema: [
         {
-          AttributeName: "title",
-          KeyType: "HASH",
-        },
-        {
           AttributeName: "artist",
-          KeyType: "RANGE",
+          KeyType: "HASH",
         },
       ],
       Projection: {
@@ -77,12 +69,8 @@ const createMusicTableCommand = new CreateTableCommand({
     {
       KeySchema: [
         {
-          AttributeName: "title",
-          KeyType: "HASH",
-        },
-        {
           AttributeName: "year",
-          KeyType: "RANGE",
+          KeyType: "HASH",
         },
       ],
       Projection: {
@@ -93,12 +81,8 @@ const createMusicTableCommand = new CreateTableCommand({
     {
       KeySchema: [
         {
-          AttributeName: "title",
-          KeyType: "HASH",
-        },
-        {
           AttributeName: "album",
-          KeyType: "RANGE",
+          KeyType: "HASH",
         },
       ],
       Projection: {
@@ -109,9 +93,9 @@ const createMusicTableCommand = new CreateTableCommand({
   ]
 });
 
-// const userTableResponse = await dbClient.send(createUserTableCommand);
 const musicTableResponse = await dbClient.send(createMusicTableCommand);
+const userTableResponse = await dbClient.send(createUserTableCommand);
 console.log('create table responses', {
-  // userTableResponse,
+  userTableResponse,
   musicTableResponse
 });
