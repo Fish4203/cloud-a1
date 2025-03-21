@@ -1,49 +1,117 @@
 import {
   DynamoDBClient,
   CreateTableCommand,
-  PutItemCommand
   } from '@aws-sdk/client-dynamodb';
 
-const TABLE_NAME = 'user_table';
+  import { MUSIC_TABLE, USER_TABLE } from './constants.ts';
+
 
 const dbClient = new DynamoDBClient({ region: 'us-east-1' });
 
-const createTableCommand = new CreateTableCommand({
-  AttributeDefinitions: [ // AttributeDefinitions // required
-    { // AttributeDefinition
-      AttributeName: "id", // required
-      AttributeType: "S", // required
+const createUserTableCommand = new CreateTableCommand({
+  AttributeDefinitions: [
+    {
+      AttributeName: "email",
+      AttributeType: "S",
     },
   ],
-  TableName: TABLE_NAME, // required
-  KeySchema: [ // KeySchema // required
-    { // KeySchemaElement
-      AttributeName: "id", // required
-      KeyType: "HASH", // required
+  TableName: USER_TABLE,
+  KeySchema: [
+    {
+      AttributeName: "email",
+      KeyType: "HASH",
     },
+
   ],
   BillingMode: "PAY_PER_REQUEST",
 });
 
-console.log(await dbClient.send(createTableCommand));
-
-const putItemCommand = new PutItemCommand({
-  TableName: TABLE_NAME, // required
-  Item: { // PutItemInputAttributeMap // required
-    "fish": { // AttributeValue Union: only one key present
-      M: { // MapAttributeValue
-        "user_name": {//  Union: only one key present
-          S: "fish",
-        },
-        "email": {//  Union: only one key present
-          S: "fish@fish",
-        },
-        "password": {//  Union: only one key present
-          S: "01234",
-        },
-      },
+const createMusicTableCommand = new CreateTableCommand({
+  AttributeDefinitions: [
+    {
+      AttributeName: "title",
+      AttributeType: "S",
     },
-  },
+    {
+      AttributeName: "artist",
+      AttributeType: "S",
+    },
+    {
+      AttributeName: "year",
+      AttributeType: "N",
+    },
+    {
+      AttributeName: "album",
+      AttributeType: "S",
+    },
+    {
+      AttributeName: "img_url",
+      AttributeType: "S",
+    },
+  ],
+  TableName: MUSIC_TABLE,
+  KeySchema: [
+    {
+      AttributeName: "title",
+      KeyType: "HASH",
+    },
+  ],
+  BillingMode: "PAY_PER_REQUEST",
+  LocalSecondaryIndexes: [
+    {
+      KeySchema: [
+        {
+          AttributeName: "title",
+          KeyType: "HASH",
+        },
+        {
+          AttributeName: "artist",
+          KeyType: "RANGE",
+        },
+      ],
+      Projection: {
+        ProjectionType: "KEYS_ONLY"
+      },
+      IndexName: "artist"
+    },
+    {
+      KeySchema: [
+        {
+          AttributeName: "title",
+          KeyType: "HASH",
+        },
+        {
+          AttributeName: "year",
+          KeyType: "RANGE",
+        },
+      ],
+      Projection: {
+        ProjectionType: "KEYS_ONLY"
+      },
+      IndexName: "year"
+    },
+    {
+      KeySchema: [
+        {
+          AttributeName: "title",
+          KeyType: "HASH",
+        },
+        {
+          AttributeName: "album",
+          KeyType: "RANGE",
+        },
+      ],
+      Projection: {
+        ProjectionType: "KEYS_ONLY"
+      },
+      IndexName: "album"
+    }
+  ]
 });
 
-console.log(await dbClient.send(putItemCommand));
+// const userTableResponse = await dbClient.send(createUserTableCommand);
+const musicTableResponse = await dbClient.send(createMusicTableCommand);
+console.log('create table responses', {
+  // userTableResponse,
+  musicTableResponse
+});
