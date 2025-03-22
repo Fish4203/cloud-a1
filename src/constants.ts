@@ -1,2 +1,1 @@
-export const USER_TABLE = 'user_table';
-export const MUSIC_TABLE = 'music_table';
+export const sleep = (delay: number) => new Promise((resolve) => setTimeout(resolve, delay))

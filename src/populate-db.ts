@@ -1,11 +1,21 @@
 import {
   DynamoDBClient,
   BatchWriteItemCommand,
+  ListTablesCommand,
 } from '@aws-sdk/client-dynamodb';
+
+import { sleep } from './constants.ts';
 
 import songs from '../2025a1.json' with { type: "json" };
 
 const dbClient = new DynamoDBClient({ region: 'us-east-1' });
+
+let existingTables: string[] = [];
+
+while (!existingTables.includes('user_table') || !existingTables.includes('music_table')) {
+  sleep(1000);
+  existingTables = (await dbClient.send(new ListTablesCommand({}))).TableNames || [];
+}
 
 const userItems = [];
 
