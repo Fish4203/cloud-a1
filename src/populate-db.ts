@@ -1,11 +1,13 @@
 import {
   DynamoDBClient,
   BatchWriteItemCommand,
-  } from '@aws-sdk/client-dynamodb';
+} from '@aws-sdk/client-dynamodb';
+
+import songs from '../2025a1.json' with { type: "json" };
 
 const dbClient = new DynamoDBClient({ region: 'us-east-1' });
 
-const userItems = []
+const userItems = [];
 
 for (let i = 0; i < 10; i++) {
   userItems.push({
@@ -23,8 +25,7 @@ for (let i = 0; i < 10; i++) {
       },
     },
   })
-}
-
+};
 
 const userBulkWrite = new BatchWriteItemCommand({
   RequestItems: {
@@ -34,28 +35,44 @@ const userBulkWrite = new BatchWriteItemCommand({
 
 const userCommandResponse = await dbClient.send(userBulkWrite);
 
-console.log('write table responses', {
+console.log('write to user table', {
   userCommandResponse
 });
 
+while (songs.songs.length > 0) {
+  const songRequests = []
 
-// const putItemCommand = new PutItemCommand({
-//   TableName: TABLE_NAME, // required
-//   ReturnConsumedCapacity: "TOTAL",
-//   Item: { // MapAttributeValue
-//     "cool_key": {
-//       S: "fishKey"
-//     },
-//     "user_name": {//  Union: only one key present
-//       S: "fish",
-//     },
-//     "email": {//  Union: only one key present
-//       S: "fish@fish",
-//     },
-//     "password": {//  Union: only one key present
-//       S: "01234",
-//     },
-//   },
-// });
+  for (let i = 0; i < 25 && songs.songs.length > 0; i++) {
+    const song = songs.songs.pop();
+    if (!song) {
+      break;
+    }
 
-// console.log(await dbClient.send(putItemCommand));
+    songRequests.push({
+      PutRequest: {
+        Item: {
+          title: {
+            S: song.title,
+          },
+          artist: {
+            S: song.artist,
+          },
+          year: {
+            N: song.year,
+          },
+          album: {
+            S: song.album,
+          },
+          img_url: {
+            S: song.img_url,
+          },
+        },
+      },
+    })
+  };
+
+  console.log(`adding ${songRequests.length} songs to db`);
+  console.log('request response', {
+    response: await dbClient.send(new BatchWriteItemCommand({ RequestItems: { music_table: songRequests }}))
+  });
+}

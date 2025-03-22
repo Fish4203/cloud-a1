@@ -14,6 +14,9 @@ importers:
       '@aws-sdk/client-s3':
         specifier: ^3.758.0
         version: 3.758.0
+      '@aws-sdk/types':
+        specifier: ^3.734.0
+        version: 3.734.0
       dotenv:
         specifier: ^16.4.7
         version: 16.4.7

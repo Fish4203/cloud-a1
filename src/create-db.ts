@@ -1,12 +1,38 @@
 import {
   DynamoDBClient,
   CreateTableCommand,
+  DeleteTableCommand,
   } from '@aws-sdk/client-dynamodb';
 
-  import { MUSIC_TABLE, USER_TABLE } from './constants.ts';
-
-
 const dbClient = new DynamoDBClient({ region: 'us-east-1' });
+
+const deleteUserTablesCommand = new DeleteTableCommand({ TableName: 'user_table' });
+const deleteMusicTablesCommand = new DeleteTableCommand({ TableName: 'music_table' });
+
+
+try {
+  const deleteMusicTableResponse = await dbClient.send(deleteMusicTablesCommand);
+
+  console.log('deleting music table ', {
+    deleteMusicTableResponse,
+  });
+} catch (error) {
+  console.log('failed to delete music table', {
+    error
+  });
+}
+
+try {
+  const deleteUserTableResponse = await dbClient.send(deleteUserTablesCommand);
+
+  console.log('deleting user table ', {
+    deleteUserTableResponse,
+  });
+} catch (error) {
+  console.log('failed to delete user table', {
+    error
+  });
+}
 
 const createUserTableCommand = new CreateTableCommand({
   AttributeDefinitions: [
@@ -15,7 +41,7 @@ const createUserTableCommand = new CreateTableCommand({
       AttributeType: "S",
     },
   ],
-  TableName: USER_TABLE,
+  TableName: 'user_table',
   KeySchema: [
     {
       AttributeName: "email",
@@ -45,11 +71,15 @@ const createMusicTableCommand = new CreateTableCommand({
       AttributeType: "S",
     },
   ],
-  TableName: MUSIC_TABLE,
+  TableName: 'music_table',
   KeySchema: [
     {
       AttributeName: "title",
       KeyType: "HASH",
+    },
+    {
+      AttributeName: "album",
+      KeyType: "RANGE",
     },
   ],
   BillingMode: "PAY_PER_REQUEST",
@@ -78,18 +108,6 @@ const createMusicTableCommand = new CreateTableCommand({
       },
       IndexName: "year"
     },
-    {
-      KeySchema: [
-        {
-          AttributeName: "album",
-          KeyType: "HASH",
-        },
-      ],
-      Projection: {
-        ProjectionType: "KEYS_ONLY"
-      },
-      IndexName: "album"
-    }
   ]
 });
 
