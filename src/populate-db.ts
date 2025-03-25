@@ -66,10 +66,9 @@ while (songs.songs.length > 0) {
       break;
     }
 
-    await transferFile(song.img_url);
-    const readFile = createReadStream('./temp-img');
+    const imgBuffer = await transferFile(song.img_url);
 
-    const command = new PutObjectCommand({ Bucket: 'ben-music-img', Key: randomUUID(), ContentType: 'image/png', Body: readFile });
+    const command = new PutObjectCommand({ Bucket: 'ben-music-img', Key: randomUUID(), ContentType: 'image/png', Body: imgBuffer });
     console.log(await s3Client.send(command));
 
     songRequests.push({

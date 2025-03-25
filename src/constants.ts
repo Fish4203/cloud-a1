@@ -1,15 +1,13 @@
-import { error } from 'console';
-import { createWriteStream } from 'fs';
 import https from 'https';
-import { pipeline } from 'stream';
-import { inspect } from 'util';
 
 export const sleep = (delay: number) => new Promise((resolve) => setTimeout(resolve, delay))
 
 export const transferFile = async (src: string) => {
   const srcUrl = new URL(src);
 
-  return new Promise<void>((resolve, reject) => {
+
+
+  return new Promise<Buffer>((resolve, reject) => {
     // connect to source
     https.get(srcUrl, (response) => {
       if (response.statusCode !== 200) {
@@ -18,21 +16,18 @@ export const transferFile = async (src: string) => {
         return;
       }
 
-      const writeStream = createWriteStream('./temp-img');
+      // @ts-ignore
+      const chunks = [];
 
-      // pipe content from source to destination
-      pipeline(response, writeStream, (err) => {
-        if (err) {
-          console.error('file transfer failed', {
-            error
-          });
-        }
+      response.on('data', (chunk) => {
+        chunks.push(chunk);
       });
 
-      // Handle errors in the upload request
-      writeStream.on('error', (error) => {
-        reject(`upload request error (${inspect(error)})`);
+      response.on("end", () => {
+        // @ts-ignore
+        resolve(Buffer.concat(chunks));
       });
+
       response.once('end', resolve);
     }).on('error', (error) => {
       reject(`download request error (${error})`);
