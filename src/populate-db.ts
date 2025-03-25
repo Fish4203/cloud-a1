@@ -3,12 +3,20 @@ import {
   BatchWriteItemCommand,
   ListTablesCommand,
 } from '@aws-sdk/client-dynamodb';
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import {
+  getSignedUrl,
+} from "@aws-sdk/s3-request-presigner";
+import { randomUUID } from 'node:crypto';
 
-import { sleep } from './constants.ts';
+import { sleep, transferFile } from './constants.ts';
 
 import songs from '../2025a1.json' with { type: "json" };
+import axios from 'axios';
+import { createReadStream, createWriteStream } from 'node:fs';
 
 const dbClient = new DynamoDBClient({ region: 'us-east-1' });
+const s3Client = new S3Client({ region: 'us-east-1' });
 
 let existingTables: string[] = [];
 
@@ -57,6 +65,12 @@ while (songs.songs.length > 0) {
     if (!song) {
       break;
     }
+
+    await transferFile(song.img_url);
+    const readFile = createReadStream('./temp-img');
+
+    const command = new PutObjectCommand({ Bucket: 'ben-music-img', Key: randomUUID(), ContentType: 'image/png', Body: readFile });
+    console.log(await s3Client.send(command));
 
     songRequests.push({
       PutRequest: {

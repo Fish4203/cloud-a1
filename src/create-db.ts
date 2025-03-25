@@ -2,9 +2,17 @@ import {
   DynamoDBClient,
   CreateTableCommand,
   DeleteTableCommand,
+  ListTablesCommand,
   } from '@aws-sdk/client-dynamodb';
+import { CreateBucketCommand, S3Client } from '@aws-sdk/client-s3';
+import { sleep } from './constants.ts';
 
 const dbClient = new DynamoDBClient({ region: 'us-east-1' });
+const s3Client = new S3Client({ region: 'us-east-1' });
+
+const command = new CreateBucketCommand({ Bucket: "ben-music-img" });
+
+console.log('creating s3 bucket', { response: await s3Client.send(command) });
 
 const deleteUserTablesCommand = new DeleteTableCommand({ TableName: 'user_table' });
 const deleteMusicTablesCommand = new DeleteTableCommand({ TableName: 'music_table' });
@@ -32,6 +40,13 @@ try {
   console.log('failed to delete user table', {
     error
   });
+}
+
+let existingTables: string[] = [];
+
+while (existingTables.includes('user_table') || existingTables.includes('music_table')) {
+  sleep(1000);
+  existingTables = (await dbClient.send(new ListTablesCommand({}))).TableNames || [];
 }
 
 const createUserTableCommand = new CreateTableCommand({
