@@ -3,51 +3,62 @@ import {
   CreateTableCommand,
   DeleteTableCommand,
   ListTablesCommand,
+  waitUntilTableNotExists,
   } from '@aws-sdk/client-dynamodb';
-import { CreateBucketCommand, S3Client } from '@aws-sdk/client-s3';
-import { sleep } from './constants.ts';
+import { CreateBucketCommand, DeleteBucketCommand, ListBucketsCommand, PutBucketPolicyCommand, S3Client, waitUntilBucketExists, waitUntilBucketNotExists } from '@aws-sdk/client-s3';
 
 const dbClient = new DynamoDBClient({ region: 'us-east-1' });
 const s3Client = new S3Client({ region: 'us-east-1' });
 
-const command = new CreateBucketCommand({ Bucket: "ben-music-img" });
+// nuking
+const tables = (await dbClient.send(new ListTablesCommand({}))).TableNames || [];
 
-console.log('creating s3 bucket', { response: await s3Client.send(command) });
+for (const table of tables) {
+  console.log(`deleting table ${table}`);
 
-const deleteUserTablesCommand = new DeleteTableCommand({ TableName: 'user_table' });
-const deleteMusicTablesCommand = new DeleteTableCommand({ TableName: 'music_table' });
+  const deleteTableResponse = await dbClient.send(new DeleteTableCommand({ TableName: table }));
 
+  console.log(deleteTableResponse);
 
-try {
-  const deleteMusicTableResponse = await dbClient.send(deleteMusicTablesCommand);
-
-  console.log('deleting music table ', {
-    deleteMusicTableResponse,
-  });
-} catch (error) {
-  console.log('failed to delete music table', {
-    error
-  });
+  await waitUntilTableNotExists({ client: dbClient, maxWaitTime: 60 }, { TableName: table});
 }
 
-try {
-  const deleteUserTableResponse = await dbClient.send(deleteUserTablesCommand);
+// const buckets = (await s3Client.send(new ListBucketsCommand({}))).Buckets || [];
 
-  console.log('deleting user table ', {
-    deleteUserTableResponse,
-  });
-} catch (error) {
-  console.log('failed to delete user table', {
-    error
-  });
-}
+// for (const bucket of buckets) {
+//   console.log(`deleting bucket ${bucket.Name}`);
+//   const deleteBucketResponse = await s3Client.send(new DeleteBucketCommand({ Bucket: bucket.Name }));
 
-let existingTables: string[] = [];
+//   console.log(deleteBucketResponse);
 
-while (existingTables.includes('user_table') || existingTables.includes('music_table')) {
-  sleep(1000);
-  existingTables = (await dbClient.send(new ListTablesCommand({}))).TableNames || [];
-}
+//   await waitUntilBucketNotExists({ client: s3Client, maxWaitTime: 60 }, { Bucket: bucket.Name});
+// }
+
+
+// // creating
+// const createBucket = new CreateBucketCommand({ Bucket: 'ben-music-img' });
+
+// console.log('creating s3 bucket', { response: await s3Client.send(createBucket) });
+
+await waitUntilBucketExists({ client: s3Client, maxWaitTime: 60 }, { Bucket: 'ben-music-img'});
+
+const putBucketPolocy = new PutBucketPolicyCommand({
+  Bucket: 'ben-music-img',
+  Policy: JSON.stringify({
+    "Version":"2012-10-17",
+    "Statement":[
+      {
+        "Sid":"PublicRead",
+        "Effect":"Allow",
+        "Principal": "*",
+        "Action":["s3:GetObject"],
+        "Resource":["arn:aws:s3:::ben-music-img/*"]
+      }
+    ]
+  }),
+});
+
+console.log('creating s3 bucket access', { response: await s3Client.send(putBucketPolocy) });
 
 const createUserTableCommand = new CreateTableCommand({
   AttributeDefinitions: [
