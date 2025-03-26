@@ -20,7 +20,9 @@
     "@aws-sdk/types": "^3.734.0",
     "axios": "^1.8.4",
     "dotenv": "^16.4.7",
-    "express": "^4.21.2"
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "passport": "^0.7.0"
   },
   "devDependencies": {
     "@types/express": "^5.0.0",
