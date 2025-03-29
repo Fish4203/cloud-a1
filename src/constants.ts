@@ -1,3 +1,4 @@
+import { AttributeValue } from '@aws-sdk/client-dynamodb';
 import https from 'https';
 
 export const sleep = (delay: number) => new Promise((resolve) => setTimeout(resolve, delay))
@@ -34,3 +35,15 @@ export const transferFile = async (src: string) => {
     });
   });
 };
+
+enum userKeys {
+  EMAIL = 'email',
+  PASSWORD = 'password',
+  USERNAME = 'username'
+}
+
+export type IUser = Record<userKeys, string>;
+
+export const toUser = (dbItem: Record<string, AttributeValue>) => {
+  return { email: dbItem['email'].S, password: dbItem['password'].S, username: dbItem['username'].S } as IUser;
+}

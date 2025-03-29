@@ -1,8 +1,21 @@
 import { DynamoDBClient, GetItemCommand, PutItemCommand } from "@aws-sdk/client-dynamodb";
 import { Request, Response, Router } from "express";
+import jwt from 'jsonwebtoken';
 
 const dbClient = new DynamoDBClient({ region: 'us-east-1' });
 const router = Router();
+
+type User = {
+  username: string;
+  email: string;
+};
+
+// Augment express-session with a custom SessionData object
+declare module "express-session" {
+  interface SessionData {
+    user: User;
+  }
+}
 
 router.get('/login', (req, res) => {
   res.render('login');
@@ -20,16 +33,17 @@ router.post('/login', async (req, res) => {
     },
   }));
 
-  if (!dbResponse.Item) {
+  if (!dbResponse.Item || !dbResponse.Item['username'].S) {
     res.render('login', { formError: 'couldn\'t find user' });
     return;
   }
 
-  if (dbResponse.Item['password'] !== password) {
+  if (dbResponse.Item['password'].S !== password) {
     res.render('login', { formError: 'wrong password' });
     return;
   }
 
+  req.session.user = { username: dbResponse.Item['username'].S, email };
   res.redirect('/');
 });
 

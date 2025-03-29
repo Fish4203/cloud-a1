@@ -137,9 +137,70 @@ const createMusicTableCommand = new CreateTableCommand({
   ]
 });
 
-const musicTableResponse = await dbClient.send(createMusicTableCommand);
+const createSubscriptionTableCommand = new CreateTableCommand({
+  AttributeDefinitions: [
+    {
+      AttributeName: "sub_id",
+      AttributeType: "S",
+    },
+    {
+      AttributeName: "email",
+      AttributeType: "S",
+    },
+    {
+      AttributeName: "title",
+      AttributeType: "S",
+    },
+    {
+      AttributeName: "album",
+      AttributeType: "S",
+    },
+  ],
+  TableName: 'sub_table',
+  KeySchema: [
+    {
+      AttributeName: "sub_id",
+      KeyType: "HASH",
+    },
+  ],
+  BillingMode: "PAY_PER_REQUEST",
+  GlobalSecondaryIndexes: [
+    {
+      KeySchema: [
+        {
+          AttributeName: "title",
+          KeyType: "HASH",
+        },
+        {
+          AttributeName: "album",
+          KeyType: "RANGE",
+        },
+      ],
+      Projection: {
+        ProjectionType: "KEYS_ONLY"
+      },
+      IndexName: "music"
+    },
+    {
+      KeySchema: [
+        {
+          AttributeName: "email",
+          KeyType: "HASH",
+        },
+      ],
+      Projection: {
+        ProjectionType: "KEYS_ONLY"
+      },
+      IndexName: "user"
+    },
+  ]
+});
+
 const userTableResponse = await dbClient.send(createUserTableCommand);
+const musicTableResponse = await dbClient.send(createMusicTableCommand);
+const subscriptionTableResponse = await dbClient.send(createSubscriptionTableCommand);
 console.log('create table responses', {
   userTableResponse,
-  musicTableResponse
+  musicTableResponse,
+  subscriptionTableResponse
 });
