@@ -1,34 +1,60 @@
-import { DynamoDBClient, GetItemCommand, PutItemCommand } from "@aws-sdk/client-dynamodb";
+import { BatchGetItemCommand, DynamoDBClient, GetItemCommand, PutItemCommand, QueryCommand } from "@aws-sdk/client-dynamodb";
 import { Request, Response, Router } from "express";
+import { Music, toMusic } from "../constants";
 
 const dbClient = new DynamoDBClient({ region: 'us-east-1' });
 const router = Router();
 
-router.get('/sub', (req, res) => {
-  res.render('login');
-});
+router.get('/sub', async (req, res) => {
+  if (!req.session.user) {
+    res.redirect('/login');
+    return;
+  }
 
-router.post('/sub', async (req, res) => {
-  const { email, password } = req.body;
+  const { email } = req.session.user
 
-  const dbResponse = await dbClient.send(new GetItemCommand({
-    TableName: 'user_table',
-    Key: {
+  const dbResponse = await dbClient.send(new QueryCommand({
+    TableName: 'sub_table',
+    ExpressionAttributeValues: {
       email: {
         S: email,
       },
     },
+    KeyConditionExpression: "email = email",
   }));
 
-  if (!dbResponse.Item) {
-    res.render('login', { formError: 'couldn\'t find user' });
-    return;
+  const subs: Music[] = [];
+
+  if (dbResponse.Items) {
+    const subKeys = [];
+    for (const item of dbResponse.Items) {
+      subKeys.push({
+        title: item['title'],
+        album: item['album'],
+      });
+    }
+
+    const dbResponseBatch = await dbClient.send(new BatchGetItemCommand({
+      RequestItems: {
+        music_table: {
+          Keys: subKeys
+        }
+      }
+    }));
+
+    if (dbResponseBatch.Responses) {
+      for (const sub of dbResponseBatch.Responses['music_table']) {
+        subs.push(toMusic(sub));
+      }
+    }
   }
 
-  if (dbResponse.Item['password'].S !== password) {
-    res.render('login', { formError: 'wrong password' });
-    return;
-  }
+  res.render('sub', { subs });
+});
+
+router.post('/sub', async (req, res) => {
+
+
 
   res.redirect('/');
 });

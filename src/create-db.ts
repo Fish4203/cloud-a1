@@ -140,10 +140,6 @@ const createMusicTableCommand = new CreateTableCommand({
 const createSubscriptionTableCommand = new CreateTableCommand({
   AttributeDefinitions: [
     {
-      AttributeName: "sub_id",
-      AttributeType: "S",
-    },
-    {
       AttributeName: "email",
       AttributeType: "S",
     },
@@ -159,41 +155,19 @@ const createSubscriptionTableCommand = new CreateTableCommand({
   TableName: 'sub_table',
   KeySchema: [
     {
-      AttributeName: "sub_id",
+      AttributeName: "email",
       KeyType: "HASH",
+    },
+    {
+      AttributeName: "title",
+      KeyType: "HASH",
+    },
+    {
+      AttributeName: "album",
+      KeyType: "RANGE",
     },
   ],
   BillingMode: "PAY_PER_REQUEST",
-  GlobalSecondaryIndexes: [
-    {
-      KeySchema: [
-        {
-          AttributeName: "title",
-          KeyType: "HASH",
-        },
-        {
-          AttributeName: "album",
-          KeyType: "RANGE",
-        },
-      ],
-      Projection: {
-        ProjectionType: "KEYS_ONLY"
-      },
-      IndexName: "music"
-    },
-    {
-      KeySchema: [
-        {
-          AttributeName: "email",
-          KeyType: "HASH",
-        },
-      ],
-      Projection: {
-        ProjectionType: "KEYS_ONLY"
-      },
-      IndexName: "user"
-    },
-  ]
 });
 
 const userTableResponse = await dbClient.send(createUserTableCommand);
