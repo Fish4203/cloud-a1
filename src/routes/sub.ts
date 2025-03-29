@@ -53,10 +53,32 @@ router.get('/sub', async (req, res) => {
 });
 
 router.post('/sub', async (req, res) => {
+  if (!req.session.user) {
+    res.redirect('/login');
+    return;
+  }
 
+  const { email } = req.session.user
+  const { title, album } = req.body;
 
+  const dbResponse = await dbClient.send(new PutItemCommand({
+    TableName: 'sub_table',
+    Item: {
+      email: {
+        S: email
+      },
+      title: {
+        S: title
+      },
+      album: {
+        S: album
+      }
+    }
+  }));
 
-  res.redirect('/');
+  console.log(dbResponse);
+
+  res.redirect('/sub');
 });
 
 export default router;

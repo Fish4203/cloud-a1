@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/styles/main.css">
-  <title>Subscription</title>
+  <title>Query</title>
 </head>
 <body>
-  <h1>Subscriptions</h1>
+  <h1>Query</h1>
 
   <table>
     <thead>
@@ -17,17 +17,17 @@
         <th scope="col">Year</th>
         <th scope="col">Album</th>
         <th scope="col">Image</th>
-        <th scope="col">UnSubscribe</th>
+        <th scope="col">Subscribe</th>
       </tr>
     </thead>
     <tbody>
-      <% for ( const sub of subs ) { %>
+      <% for ( const musicItem of music ) { %>
         <tr>
-          <th scope="row"><%= sub.title %> </th>
-          <th scope="row"><%= sub.artist %> </th>
-          <th scope="row"><%= sub.year %> </th>
-          <th scope="row"><%= sub.album %> </th>
-          <th scope="row"><img src="<%= sub.img_url %>" alt=""></th>
+          <th scope="row"><%= musicItem.title %> </th>
+          <th scope="row"><%= musicItem.artist %> </th>
+          <th scope="row"><%= musicItem.year %> </th>
+          <th scope="row"><%= musicItem.album %> </th>
+          <th scope="row"><img src="<%= musicItem.img_url %>" alt=""></th>
         </tr>
       <% } %>
     </tbody>
