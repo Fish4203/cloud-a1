@@ -5,7 +5,7 @@ import {
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { randomUUID } from 'node:crypto';
 
-import { sleep, transferFile } from './constants.ts';
+import { transferFile } from './constants.ts';
 
 import songs from '../2025a1.json' with { type: "json" };
 const baseS3Url = 'https://ben-music-img.s3.us-east-1.amazonaws.com/'

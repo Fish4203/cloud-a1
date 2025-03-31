@@ -23,42 +23,34 @@ for (const table of tables) {
   await waitUntilTableNotExists({ client: dbClient, maxWaitTime: 60 }, { TableName: table});
 }
 
-// const buckets = (await s3Client.send(new ListBucketsCommand({}))).Buckets || [];
+// creating
+try {
+  const createBucket = new CreateBucketCommand({ Bucket: 'ben-music-img' });
 
-// for (const bucket of buckets) {
-//   console.log(`deleting bucket ${bucket.Name}`);
-//   const deleteBucketResponse = await s3Client.send(new DeleteBucketCommand({ Bucket: bucket.Name }));
+  console.log('creating s3 bucket', { response: await s3Client.send(createBucket) });
+  await waitUntilBucketExists({ client: s3Client, maxWaitTime: 60 }, { Bucket: 'ben-music-img'});
 
-//   console.log(deleteBucketResponse);
+  const putBucketPolocy = new PutBucketPolicyCommand({
+    Bucket: 'ben-music-img',
+    Policy: JSON.stringify({
+      "Version":"2012-10-17",
+      "Statement":[
+        {
+          "Sid":"PublicRead",
+          "Effect":"Allow",
+          "Principal": "*",
+          "Action":["s3:GetObject"],
+          "Resource":["arn:aws:s3:::ben-music-img/*"]
+        }
+      ]
+    }),
+  });
 
-//   await waitUntilBucketNotExists({ client: s3Client, maxWaitTime: 60 }, { Bucket: bucket.Name});
-// }
+  console.log('creating s3 bucket access', { response: await s3Client.send(putBucketPolocy) });
+} catch (error) {
+  console.log('bucket already exists', error);
+}
 
-
-// // creating
-// const createBucket = new CreateBucketCommand({ Bucket: 'ben-music-img' });
-
-// console.log('creating s3 bucket', { response: await s3Client.send(createBucket) });
-
-await waitUntilBucketExists({ client: s3Client, maxWaitTime: 60 }, { Bucket: 'ben-music-img'});
-
-const putBucketPolocy = new PutBucketPolicyCommand({
-  Bucket: 'ben-music-img',
-  Policy: JSON.stringify({
-    "Version":"2012-10-17",
-    "Statement":[
-      {
-        "Sid":"PublicRead",
-        "Effect":"Allow",
-        "Principal": "*",
-        "Action":["s3:GetObject"],
-        "Resource":["arn:aws:s3:::ben-music-img/*"]
-      }
-    ]
-  }),
-});
-
-console.log('creating s3 bucket access', { response: await s3Client.send(putBucketPolocy) });
 
 const createUserTableCommand = new CreateTableCommand({
   AttributeDefinitions: [
@@ -144,11 +136,7 @@ const createSubscriptionTableCommand = new CreateTableCommand({
       AttributeType: "S",
     },
     {
-      AttributeName: "title",
-      AttributeType: "S",
-    },
-    {
-      AttributeName: "album",
+      AttributeName: "title_album",
       AttributeType: "S",
     },
   ],
@@ -159,11 +147,7 @@ const createSubscriptionTableCommand = new CreateTableCommand({
       KeyType: "HASH",
     },
     {
-      AttributeName: "title",
-      KeyType: "HASH",
-    },
-    {
-      AttributeName: "album",
+      AttributeName: "title_album",
       KeyType: "RANGE",
     },
   ],

@@ -36,11 +36,7 @@ export const transferFile = async (src: string) => {
   });
 };
 
-enum userKeys {
-  EMAIL = 'email',
-  PASSWORD = 'password',
-  USERNAME = 'username'
-}
+type userKeys = 'email' | 'password' | 'username'
 
 export type IUser = Record<userKeys, string>;
 
