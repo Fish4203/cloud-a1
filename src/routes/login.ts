@@ -17,7 +17,7 @@ declare module "express-session" {
 }
 
 router.get('/login', (req, res) => {
-  res.render('login');
+  res.render('login.ejs', { formError: undefined });
 });
 
 router.post('/login', async (req, res) => {
