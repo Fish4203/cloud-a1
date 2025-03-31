@@ -32,22 +32,22 @@ router.post('/login', async (req, res) => {
     },
   }));
 
-  if (!dbResponse.Item || !dbResponse.Item['username'].S) {
-    res.render('login', { formError: 'couldn\'t find user' });
+  if (!dbResponse.Item || !dbResponse.Item['user_name'].S) {
+    res.render('login.ejs', { formError: 'couldn\'t find user' });
     return;
   }
 
   if (dbResponse.Item['password'].S !== password) {
-    res.render('login', { formError: 'wrong password' });
+    res.render('login.ejs', { formError: 'wrong password' });
     return;
   }
 
-  req.session.user = { username: dbResponse.Item['username'].S, email };
+  res.cookie('token', { username: dbResponse.Item['user_name'].S, email });
   res.redirect('/');
 });
 
 router.get('/register', (req, res) => {
-  res.render('register');
+  res.render('register.ejs');
 });
 
 router.post('/register', async (req, res) => {

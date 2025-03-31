@@ -65,7 +65,7 @@ router.get('/query', async (req, res) => {
     }
   }
 
-  res.render('query', { music });
+  res.render('query.ejs', { music });
 });
 
 export default router;

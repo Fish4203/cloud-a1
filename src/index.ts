@@ -6,6 +6,7 @@ import subRouter from "./routes/sub.ts";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { S3Client } from "@aws-sdk/client-s3";
 import session from "express-session";
+import bodyParser from "body-parser";
 
 dotenv.config();
 const dbClient = new DynamoDBClient({ region: 'us-east-1' });
@@ -14,6 +15,7 @@ const s3Client = new S3Client({ region: 'us-east-1' });
 const app: express.Express = express.default();
 const port = process.env.PORT || 3000;
 
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(session({
   secret: 'cool-secret',
   resave: false,
@@ -22,13 +24,9 @@ app.use(session({
 }));
 
 
-app.get("/", (req: express.Request, res: express.Response) => {
-  res.send("Express + TypeScript Server");
-});
-
-app.use('/login', loginRouter);
-app.use('/query', queryRouter);
-app.use('/sub', subRouter);
+app.use('/', loginRouter);
+app.use('/', queryRouter);
+app.use('/', subRouter);
 
 app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);

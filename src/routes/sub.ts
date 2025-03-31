@@ -7,7 +7,7 @@ import type { Music } from "../constants.ts";
 const dbClient = new DynamoDBClient({ region: 'us-east-1' });
 const router = express.Router();
 
-router.get('/sub', async (req, res) => {
+router.get('/', async (req, res) => {
   if (!req.session.user) {
     res.redirect('/login');
     return;
@@ -51,7 +51,7 @@ router.get('/sub', async (req, res) => {
     }
   }
 
-  res.render('sub', { subs });
+  res.render('sub.ejs', { subs });
 });
 
 router.post('/sub', async (req, res) => {
