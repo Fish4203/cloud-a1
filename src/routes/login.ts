@@ -1,9 +1,8 @@
 import { DynamoDBClient, GetItemCommand, PutItemCommand } from "@aws-sdk/client-dynamodb";
-import { Request, Response, Router } from "express";
-import jwt from 'jsonwebtoken';
+import * as express from "express";
 
 const dbClient = new DynamoDBClient({ region: 'us-east-1' });
-const router = Router();
+const router = express.Router();
 
 type User = {
   username: string;

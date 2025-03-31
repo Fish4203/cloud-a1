@@ -1,9 +1,11 @@
 import { BatchGetItemCommand, DynamoDBClient, GetItemCommand, PutItemCommand, QueryCommand } from "@aws-sdk/client-dynamodb";
-import { Request, Response, Router } from "express";
-import { Music, toMusic } from "../constants";
+import * as express from "express";
+import { toMusic } from "../constants.ts";
+import type { Music } from "../constants.ts";
+
 
 const dbClient = new DynamoDBClient({ region: 'us-east-1' });
-const router = Router();
+const router = express.Router();
 
 router.get('/sub', async (req, res) => {
   if (!req.session.user) {
