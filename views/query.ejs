@@ -9,6 +9,18 @@
 <body>
   <h1>Query</h1>
 
+  <form method="post" action="/query">
+    <label for="title">Title:</label>
+    <input type="text" id="title" name="title">
+    <label for="album">Album:</label>
+    <input type="text" id="album" name="album">
+    <label for="artist">Artist:</label>
+    <input type="text" id="artist" name="artist">
+    <label for="year">year:</label>
+    <input type="text" id="year" name="year">
+    <button type="submit">Search</button>
+  </form>
+
   <table>
     <thead>
       <tr>
@@ -27,7 +39,8 @@
           <th scope="row"><%= musicItem.artist %> </th>
           <th scope="row"><%= musicItem.year %> </th>
           <th scope="row"><%= musicItem.album %> </th>
-          <th scope="row"><img src="<%= musicItem.img_url %>" alt=""></th>
+          <th scope="row"><img src="<%= musicItem.image %>" alt=""></th>
+          <th scope="row"><a href="/sub?title_album=<%= musicItem.title %>_<%= musicItem.album %>">Subscribe</a></th>
         </tr>
       <% } %>
     </tbody>

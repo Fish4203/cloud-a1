@@ -15,44 +15,48 @@ router.get('/', async (req, res) => {
   }
 
   const { email } = decodedToken;
-
-  const dbResponse = await dbClient.send(new QueryCommand({
-    TableName: 'sub_table',
-    ExpressionAttributeValues: {
-      email: {
-        S: email,
-      },
-    },
-    KeyConditionExpression: "email = email",
-  }));
-
   const subs: Music[] = [];
 
-  if (dbResponse.Items) {
-    const subKeys = [];
-    for (const item of dbResponse.Items) {
-      subKeys.push({
-        title: item['title'],
-        album: item['album'],
-      });
-    }
-
-    const dbResponseBatch = await dbClient.send(new BatchGetItemCommand({
-      RequestItems: {
-        music_table: {
-          Keys: subKeys
-        }
-      }
+  try {
+    const dbResponse = await dbClient.send(new QueryCommand({
+      TableName: 'sub_table',
+      ExpressionAttributeValues: {
+        ':email': {
+          S: email,
+        },
+      },
+      KeyConditionExpression: "email = :email",
+      ProjectionExpression: "aaaaa",
     }));
 
-    if (dbResponseBatch.Responses) {
-      for (const sub of dbResponseBatch.Responses['music_table']) {
-        subs.push(toMusic(sub));
+    if (dbResponse.Items) {
+      const subKeys = [];
+      for (const item of dbResponse.Items) {
+        subKeys.push({
+          title: item['title'],
+          album: item['album'],
+        });
+      }
+
+      const dbResponseBatch = await dbClient.send(new BatchGetItemCommand({
+        RequestItems: {
+          music_table: {
+            Keys: subKeys
+          }
+        }
+      }));
+
+      if (dbResponseBatch.Responses) {
+        for (const sub of dbResponseBatch.Responses['music_table']) {
+          subs.push(toMusic(sub));
+        }
       }
     }
+  } catch (error) {
+    console.log('couldnt get items ');
   }
 
-  res.render('sub.ejs', { subs });
+  res.render('sub.ejs', { subs, formError: null });
 });
 
 router.post('/sub', async (req, res) => {
@@ -70,12 +74,9 @@ router.post('/sub', async (req, res) => {
       email: {
         S: email
       },
-      title: {
-        S: title
+      title_album: {
+        S: `${title}_${album}`
       },
-      album: {
-        S: album
-      }
     }
   }));
 

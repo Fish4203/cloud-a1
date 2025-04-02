@@ -59,7 +59,7 @@ export const toMusic = (dbItem: Record<string, AttributeValue>) => {
     artist: dbItem['artist'].S,
     year: dbItem['year'].S,
     album: dbItem['album'].S,
-    image: dbItem['image'].S
+    image: dbItem['img_url'].S
   } as Music;
 }
 
