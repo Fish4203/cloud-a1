@@ -7,6 +7,8 @@ import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { S3Client } from "@aws-sdk/client-s3";
 import session from "express-session";
 import bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
+import { jwtSecret } from "./constants.ts";
 
 dotenv.config();
 const dbClient = new DynamoDBClient({ region: 'us-east-1' });
@@ -16,13 +18,7 @@ const app: express.Express = express.default();
 const port = process.env.PORT || 3000;
 
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(session({
-  secret: 'cool-secret',
-  resave: false,
-  saveUninitialized: true,
-  cookie: { secure: true },
-}));
-
+app.use(cookieParser(jwtSecret))
 
 app.use('/', loginRouter);
 app.use('/', queryRouter);

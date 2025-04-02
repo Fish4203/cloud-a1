@@ -1,5 +1,7 @@
 import { DynamoDBClient, GetItemCommand, PutItemCommand } from "@aws-sdk/client-dynamodb";
 import * as express from "express";
+import jwt from "jsonwebtoken";
+import { jwtSecret } from "../constants.ts";
 
 const dbClient = new DynamoDBClient({ region: 'us-east-1' });
 const router = express.Router();
@@ -42,7 +44,8 @@ router.post('/login', async (req, res) => {
     return;
   }
 
-  res.cookie('token', { username: dbResponse.Item['user_name'].S, email });
+  const token = jwt.sign({ username: dbResponse.Item['user_name'].S, email }, jwtSecret);
+  res.cookie('token', token);
   res.redirect('/');
 });
 

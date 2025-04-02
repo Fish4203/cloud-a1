@@ -1,4 +1,5 @@
 import { AttributeValue } from '@aws-sdk/client-dynamodb';
+import jwt from "jsonwebtoken";
 import https from 'https';
 
 export const sleep = (delay: number) => new Promise((resolve) => setTimeout(resolve, delay))
@@ -60,4 +61,25 @@ export const toMusic = (dbItem: Record<string, AttributeValue>) => {
     album: dbItem['album'].S,
     image: dbItem['image'].S
   } as Music;
+}
+
+export const jwtSecret = 'very-secret';
+
+export const decodeToken = (cookies: unknown) => {
+  if (typeof cookies !== 'object' || cookies === null) {
+    return null;
+  }
+
+  console.log(cookies);
+
+  if ('token' in cookies && typeof cookies['token'] === 'string') {
+    const decodedToken = jwt.decode(cookies['token']);
+    console.log(decodedToken);
+
+    if (decodedToken && typeof decodedToken !== 'string' && 'username' in decodedToken && 'email' in decodedToken) {
+      return { username: decodedToken['username'] as string, email: decodedToken['email'] as string}
+    }
+  }
+
+  return null;
 }
