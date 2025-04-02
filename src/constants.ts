@@ -70,11 +70,8 @@ export const decodeToken = (cookies: unknown) => {
     return null;
   }
 
-  console.log(cookies);
-
   if ('token' in cookies && typeof cookies['token'] === 'string') {
     const decodedToken = jwt.decode(cookies['token']);
-    console.log(decodedToken);
 
     if (decodedToken && typeof decodedToken !== 'string' && 'username' in decodedToken && 'email' in decodedToken) {
       return { username: decodedToken['username'] as string, email: decodedToken['email'] as string}
