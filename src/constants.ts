@@ -29,8 +29,6 @@ export const transferFile = async (src: string) => {
         // @ts-ignore
         resolve(Buffer.concat(chunks));
       });
-
-      response.once('end', resolve);
     }).on('error', (error) => {
       reject(`download request error (${error})`);
     });
@@ -57,7 +55,7 @@ export const toMusic = (dbItem: Record<string, AttributeValue>) => {
   return {
     title: dbItem['title'].S,
     artist: dbItem['artist'].S,
-    year: dbItem['year'].S,
+    year: dbItem['year'].N,
     album: dbItem['album'].S,
     image: dbItem['img_url'].S
   } as Music;

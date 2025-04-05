@@ -9,15 +9,19 @@
 <body>
   <h1>Query</h1>
 
+  <a href="/logout">Logout</a>
+  <a href="/">Subscriptions</a>
+
+
   <form method="post" action="/query">
     <label for="title">Title:</label>
     <input type="text" id="title" name="title">
-    <label for="album">Album:</label>
-    <input type="text" id="album" name="album">
     <label for="artist">Artist:</label>
     <input type="text" id="artist" name="artist">
-    <label for="year">year:</label>
+    <label for="year">Year:</label>
     <input type="text" id="year" name="year">
+    <label for="album">Album:</label>
+    <input type="text" id="album" name="album">
     <button type="submit">Search</button>
   </form>
 

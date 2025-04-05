@@ -9,6 +9,9 @@
 <body>
   <h1>Subscriptions</h1>
 
+  <a href="/logout">Logout</a>
+  <a href="/query">Search</a>
+
   <table>
     <thead>
       <tr>
@@ -33,6 +36,7 @@
       <% } %>
     </tbody>
   </table>
+
   <% if (formError) { %>
     <p><%= formError %> </p>
   <% } %>

@@ -38,46 +38,56 @@ router.post('/query', async (req, res) => {
   const { title, year, album, artist } = req.body;
 
   let ExpressionAttributeValues = {};
+  const keyConditions = []
 
   if (title !== '') {
     ExpressionAttributeValues = {
       ...ExpressionAttributeValues,
-      title: {
+      ':title': {
         S: title
       }
     }
+
+    keyConditions.push('title = :title');
   }
 
   if (year !== '') {
     ExpressionAttributeValues = {
       ...ExpressionAttributeValues,
-      year: {
+      ':year': {
         S: year
       }
     }
+    keyConditions.push('year = :year');
   }
 
   if (album !== '') {
     ExpressionAttributeValues = {
       ...ExpressionAttributeValues,
-      album: {
+      ':album': {
         S: album
       }
     }
+    keyConditions.push('album = :album');
   }
 
   if (artist !== '') {
     ExpressionAttributeValues = {
       ...ExpressionAttributeValues,
-      artist: {
+      ':artist': {
         S: artist
       }
     }
+    keyConditions.push('artist = :artist');
   }
 
-  const dbResponse = await dbClient.send(new QueryCommand({
+  console.log(ExpressionAttributeValues);
+  console.log(keyConditions);
+
+  const dbResponse = await dbClient.send(new ScanCommand({
     TableName: 'music_table',
     ExpressionAttributeValues,
+    FilterExpression: keyConditions.join(' AND '),
   }));
 
   const music: Music[] = [];
@@ -88,7 +98,7 @@ router.post('/query', async (req, res) => {
     }
   }
 
-  res.render('query.ejs', { music });
+  res.render('query.ejs', { music, formError: undefined });
 });
 
 export default router;

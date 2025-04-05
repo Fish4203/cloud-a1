@@ -1,4 +1,4 @@
-import { BatchGetItemCommand, DynamoDBClient, GetItemCommand, PutItemCommand, QueryCommand } from "@aws-sdk/client-dynamodb";
+import { BatchGetItemCommand, DeleteItemCommand, DynamoDBClient, GetItemCommand, PutItemCommand, QueryCommand } from "@aws-sdk/client-dynamodb";
 import * as express from "express";
 import { decodeToken, toMusic } from "../constants.ts";
 import type { Music } from "../constants.ts";
@@ -89,5 +89,33 @@ router.get('/sub', async (req, res) => {
 
   res.redirect('/');
 });
+
+router.get('/unsub', async (req, res) => {
+  const decodedToken = decodeToken(req.cookies);
+  if (!decodedToken) {
+    res.redirect('/login');
+    return;
+  }
+
+  const { email } = decodedToken;
+  const { title_album } = req.query;
+
+  const dbResponse = await dbClient.send(new DeleteItemCommand({
+    TableName: 'sub_table',
+    Key: {
+      email: {
+        S: email
+      },
+      title_album: {
+        S: title_album as string
+      },
+    }
+  }));
+
+  console.log(dbResponse);
+
+  res.redirect('/');
+});
+
 
 export default router;

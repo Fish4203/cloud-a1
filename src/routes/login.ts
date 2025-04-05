@@ -80,4 +80,9 @@ router.post('/register', async (req, res) => {
   res.redirect('/login');
 });
 
+router.get('/logout', (req, res) => {
+  res.cookie('token', undefined);
+  res.redirect('/login');
+});
+
 export default router;
