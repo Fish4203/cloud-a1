@@ -81,8 +81,10 @@ router.post('/query', async (req, res) => {
     keyConditions.push('artist = :artist');
   }
 
-  console.log(ExpressionAttributeValues);
-  console.log(keyConditions);
+  if (keyConditions.length === 0) {
+    res.render('query.ejs', { music: [], formError: 'No result is retrieved. Please query again' });
+    return;
+  }
 
   const dbResponse = await dbClient.send(new ScanCommand({
     TableName: 'music_table',

@@ -55,12 +55,11 @@ router.get('/', async (req, res) => {
         }
       }
     }
+    res.render('sub.ejs', { subs, formError: null });
   } catch (error) {
     console.log(error);
-    console.log('couldnt get items ');
+    res.render('sub.ejs', { subs, formError: 'couldn\'t find any items' });
   }
-
-  res.render('sub.ejs', { subs, formError: null });
 });
 
 router.get('/sub', async (req, res) => {
