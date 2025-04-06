@@ -78,3 +78,5 @@ export const decodeToken = (cookies: unknown) => {
 
   return null;
 }
+
+export const apiIp = process.env.API_IP

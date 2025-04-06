@@ -1,55 +1,65 @@
 import { DynamoDBClient, GetItemCommand, PutItemCommand, ScanCommand } from "@aws-sdk/client-dynamodb";
 import * as express from "express";
 import jwt from "jsonwebtoken";
-import { jwtSecret } from "../constants.ts";
+import { apiIp, jwtSecret } from "../constants.ts";
+import axios from "axios";
 
 const dbClient = new DynamoDBClient({ region: 'us-east-1' });
 const router = express.Router();
 
-type User = {
-  username: string;
-  email: string;
-};
+if (apiIp) {
+  router.get('/login', (req, res) => {
+    res.render('login.ejs', { formError: undefined });
+  });
 
-// Augment express-session with a custom SessionData object
-declare module "express-session" {
-  interface SessionData {
-    user: User;
-  }
+  router.post('/login', async (req, res) => {
+    const { email, password } = req.body;
+
+
+    const response = await axios.post(`${apiIp}/api/login`, { email, password });
+    const loginRes = response.data['loginRes'];
+
+    if (loginRes) {
+      const token = jwt.sign({ username: loginRes, email }, jwtSecret);
+      res.cookie('token', token);
+      res.redirect('/');
+    } else {
+      res.render('login.ejs', { formError: 'could not find user' });
+    }
+  });
+
+  router.get('/register', (req, res) => {
+    res.render('register.ejs', { formError: undefined });
+  });
+
+  router.post('/register', async (req, res) => {
+    const { username, email, password } = req.body;
+
+    const response = await axios.post(`${apiIp}/api/register`, { username, email, password });
+    const registerRes = response.data['registerRes'];
+    if (registerRes) {
+      res.redirect('/login');
+    } else {
+      res.render('register.ejs', { formError: 'couldn\'t create user' });
+    }
+  });
+} else {
+  router.post('/api/login', async (req, res) => {
+    const { email, password } = req.body;
+
+    const loginRes = await login(email, password);
+
+    res.json({ loginRes });
+  });
+
+  router.post('/api/register', async (req, res) => {
+    const { username, email, password } = req.body;
+
+    const registerRes = await register(username, email, password);
+
+    res.json({ registerRes });
+  });
 }
-
-router.get('/login', (req, res) => {
-  res.render('login.ejs', { formError: undefined });
-});
-
-router.post('/login', async (req, res) => {
-  const { email, password } = req.body;
-
-
-  const loginRes = await login(email, password);
-  if (loginRes) {
-    const token = jwt.sign({ username: loginRes, email }, jwtSecret);
-    res.cookie('token', token);
-    res.redirect('/');
-  } else {
-    res.render('login.ejs', { formError: 'could not find user' });
-  }
-});
-
-router.get('/register', (req, res) => {
-  res.render('register.ejs', { formError: undefined });
-});
-
-router.post('/register', async (req, res) => {
-  const { username, email, password } = req.body;
-
-  const registerRes = await register(username, email, password);
-  if (registerRes === null) {
-    res.redirect('/login');
-  } else {
-    res.render('register.ejs', { formError: registerRes });
-  }
-});
 
 const register = async (username: string, email: string, password: string) => {
   try {
@@ -69,13 +79,13 @@ const register = async (username: string, email: string, password: string) => {
     }));
 
     if (dbResponse.$metadata.httpStatusCode !== 200) {
-      return 'couldn\'t create user';
+      return false;
     }
   } catch (error) {
-    return error;
+    return false;
   }
 
-  return null;
+  return true;
 };
 
 const login = async (email: string, password: string) => {
