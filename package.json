@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.ts",
   "scripts": {
-    "build": "pnpm tsc",
+    "build": "pnpm tsc && cp -r ./src/views ./dist/views",
     "start": "ts-node src/index.ts",
     "dev": "nodemon src/index.ts",
     "db:create": "ts-node src/create-db.ts",

@@ -6,6 +6,7 @@ import subRouter from "./routes/sub.ts";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import { jwtSecret } from "./constants.ts";
+import path from "node:path";
 
 dotenv.config();
 
@@ -14,6 +15,8 @@ const port = process.env.PORT || 8080;
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser(jwtSecret))
+
+app.set('views', path.join(__dirname, 'views'));
 
 app.use('/', loginRouter);
 app.use('/', queryRouter);
