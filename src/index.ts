@@ -11,8 +11,6 @@ import cookieParser from "cookie-parser";
 import { jwtSecret } from "./constants.ts";
 
 dotenv.config();
-const dbClient = new DynamoDBClient({ region: 'us-east-1' });
-const s3Client = new S3Client({ region: 'us-east-1' });
 
 const app: express.Express = express.default();
 const port = process.env.PORT || 3000;

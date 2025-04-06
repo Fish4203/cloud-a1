@@ -25,31 +25,14 @@ router.get('/login', (req, res) => {
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
-  try {
-    const dbResponse = await dbClient.send(new GetItemCommand({
-      TableName: 'user_table',
-      Key: {
-        email: {
-          S: email,
-        },
-      },
-    }));
 
-    if (!dbResponse.Item || !dbResponse.Item['user_name'] || !dbResponse.Item['user_name'].S) {
-      res.render('login.ejs', { formError: 'couldn\'t find user' });
-      return;
-    }
-
-    if (dbResponse.Item['password'].S !== password) {
-      res.render('login.ejs', { formError: 'wrong password' });
-      return;
-    }
-
-    const token = jwt.sign({ username: dbResponse.Item['user_name'].S, email }, jwtSecret);
+  const loginRes = await login(email, password);
+  if (loginRes) {
+    const token = jwt.sign({ username: loginRes, email }, jwtSecret);
     res.cookie('token', token);
     res.redirect('/');
-  } catch (error) {
-    res.render('login.ejs', { formError: error });
+  } else {
+    res.render('login.ejs', { formError: 'could not find user' });
   }
 });
 
@@ -60,6 +43,15 @@ router.get('/register', (req, res) => {
 router.post('/register', async (req, res) => {
   const { username, email, password } = req.body;
 
+  const registerRes = await register(username, email, password);
+  if (registerRes === null) {
+    res.redirect('/login');
+  } else {
+    res.render('register.ejs', { formError: registerRes });
+  }
+});
+
+const register = async (username: string, email: string, password: string) => {
   try {
     const dbResponse = await dbClient.send(new PutItemCommand({
       TableName: 'user_table',
@@ -77,15 +69,39 @@ router.post('/register', async (req, res) => {
     }));
 
     if (dbResponse.$metadata.httpStatusCode !== 200) {
-      res.render('register.ejs', { formError: 'couldn\'t create user' });
-      return;
+      return 'couldn\'t create user';
+    }
+  } catch (error) {
+    return error;
+  }
+
+  return null;
+};
+
+const login = async (email: string, password: string) => {
+  try {
+    const dbResponse = await dbClient.send(new GetItemCommand({
+      TableName: 'user_table',
+      Key: {
+        email: {
+          S: email,
+        },
+      },
+    }));
+
+    if (!dbResponse.Item || !dbResponse.Item['user_name'] || !dbResponse.Item['user_name'].S) {
+      return false;
     }
 
-    res.redirect('/login');
+    if (dbResponse.Item['password'].S !== password) {
+      return false;
+    }
+
+    return dbResponse.Item['user_name'].S;
   } catch (error) {
-    res.render('register.ejs', { formError: error });
+    return false;
   }
-});
+};
 
 router.get('/logout', (req, res) => {
   res.cookie('token', undefined);

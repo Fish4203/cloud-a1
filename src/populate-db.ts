@@ -13,7 +13,6 @@ const baseS3Url = 'https://ben-music-img.s3.us-east-1.amazonaws.com/'
 const dbClient = new DynamoDBClient({ region: 'us-east-1' });
 const s3Client = new S3Client({ region: 'us-east-1' });
 
-
 const userItems = [];
 
 for (let i = 0; i < 10; i++) {

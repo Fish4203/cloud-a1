@@ -3,7 +3,6 @@ import * as express from "express";
 import { decodeToken, toMusic } from "../constants.ts";
 import type { Music } from "../constants.ts";
 
-
 const dbClient = new DynamoDBClient({ region: 'us-east-1' });
 const router = express.Router();
 
@@ -15,6 +14,77 @@ router.get('/', async (req, res) => {
   }
 
   const { email } = decodedToken;
+  const subs = await getSubs(email);
+
+  if (subs) {
+    res.render('sub.ejs', { subs, formError: null, username: decodedToken.username });
+  } else {
+    res.render('sub.ejs', { subs, formError: 'couldn\'t find any items', username: decodedToken.username });
+  }
+});
+
+router.get('/sub', async (req, res) => {
+  const decodedToken = decodeToken(req.cookies);
+  if (!decodedToken) {
+    res.redirect('/login');
+    return;
+  }
+
+  const { email } = decodedToken;
+  const { title_album } = req.query;
+  await sub(email, title_album as string);
+
+  res.redirect('/');
+});
+
+router.get('/unsub', async (req, res) => {
+  const decodedToken = decodeToken(req.cookies);
+  if (!decodedToken) {
+    res.redirect('/login');
+    return;
+  }
+
+  const { email } = decodedToken;
+  const { title_album } = req.query;
+
+  await unsub(email, title_album as string);
+
+  res.redirect('/');
+});
+
+const sub = async (email: string, title_album: string) => {
+  const dbResponse = await dbClient.send(new PutItemCommand({
+    TableName: 'sub_table',
+    Item: {
+      email: {
+        S: email
+      },
+      title_album: {
+        S: title_album
+      },
+    }
+  }));
+
+  console.log(dbResponse);
+};
+
+const unsub = async (email: string, title_album: string) => {
+  const dbResponse = await dbClient.send(new DeleteItemCommand({
+    TableName: 'sub_table',
+    Key: {
+      email: {
+        S: email
+      },
+      title_album: {
+        S: title_album as string
+      },
+    }
+  }));
+
+  console.log(dbResponse);
+};
+
+const getSubs = async (email: string) => {
   const subs: Music[] = [];
 
   try {
@@ -55,66 +125,12 @@ router.get('/', async (req, res) => {
         }
       }
     }
-    res.render('sub.ejs', { subs, formError: null });
+
+    return subs;
   } catch (error) {
     console.log(error);
-    res.render('sub.ejs', { subs, formError: 'couldn\'t find any items' });
+    return null;
   }
-});
-
-router.get('/sub', async (req, res) => {
-  const decodedToken = decodeToken(req.cookies);
-  if (!decodedToken) {
-    res.redirect('/login');
-    return;
-  }
-
-  const { email } = decodedToken;
-  const { title_album } = req.query;
-
-  const dbResponse = await dbClient.send(new PutItemCommand({
-    TableName: 'sub_table',
-    Item: {
-      email: {
-        S: email
-      },
-      title_album: {
-        S: title_album as string
-      },
-    }
-  }));
-
-  console.log(dbResponse);
-
-  res.redirect('/');
-});
-
-router.get('/unsub', async (req, res) => {
-  const decodedToken = decodeToken(req.cookies);
-  if (!decodedToken) {
-    res.redirect('/login');
-    return;
-  }
-
-  const { email } = decodedToken;
-  const { title_album } = req.query;
-
-  const dbResponse = await dbClient.send(new DeleteItemCommand({
-    TableName: 'sub_table',
-    Key: {
-      email: {
-        S: email
-      },
-      title_album: {
-        S: title_album as string
-      },
-    }
-  }));
-
-  console.log(dbResponse);
-
-  res.redirect('/');
-});
-
+};
 
 export default router;

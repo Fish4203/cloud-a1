@@ -13,19 +13,9 @@ router.get('/query', async (req, res) => {
     return;
   }
 
-  const dbResponse = await dbClient.send(new ScanCommand({
-    TableName: "music_table"
-  }));
+  const music = query(undefined, undefined);
 
-  const music: Music[] = [];
-
-  if (dbResponse.Items) {
-    for (const item of dbResponse.Items) {
-      music.push(toMusic(item));
-    }
-  }
-
-  res.render('query.ejs', { music, formError: undefined });
+  res.render('query.ejs', { music, formError: undefined, username: decodedToken.username });
 });
 
 router.post('/query', async (req, res) => {
@@ -86,21 +76,32 @@ router.post('/query', async (req, res) => {
     return;
   }
 
-  const dbResponse = await dbClient.send(new ScanCommand({
-    TableName: 'music_table',
-    ExpressionAttributeValues,
-    FilterExpression: keyConditions.join(' AND '),
-  }));
+  const music = query(ExpressionAttributeValues, keyConditions);
 
+  res.render('query.ejs', { music, formError: undefined, username: decodedToken.username });
+});
+
+const query = async (ExpressionAttributeValues: any, keyConditions: string[] | undefined) => {
   const music: Music[] = [];
 
-  if (dbResponse.Items) {
-    for (const item of dbResponse.Items) {
-      music.push(toMusic(item));
+  try {
+    const dbResponse = await dbClient.send(new ScanCommand({
+      TableName: 'music_table',
+      ExpressionAttributeValues,
+      FilterExpression: keyConditions ? keyConditions.join(' AND ') : undefined,
+    }));
+
+
+    if (dbResponse.Items) {
+      for (const item of dbResponse.Items) {
+        music.push(toMusic(item));
+      }
     }
+  } catch (error) {
+    console.log(error);
   }
 
-  res.render('query.ejs', { music, formError: undefined });
-});
+  return music;
+}
 
 export default router;

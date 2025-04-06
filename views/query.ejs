@@ -12,6 +12,7 @@
   <a href="/logout">Logout</a>
   <a href="/">Subscriptions</a>
 
+  <h3>Username: <%= username %></h3>
 
   <form method="post" action="/query">
     <label for="title">Title:</label>
@@ -24,6 +25,10 @@
     <input type="text" id="album" name="album">
     <button type="submit">Search</button>
   </form>
+
+  <% if (formError) { %>
+    <p><%= formError %> </p>
+  <% } %>
 
   <table>
     <thead>
@@ -49,9 +54,5 @@
       <% } %>
     </tbody>
   </table>
-  <% if (formError) { %>
-    <p><%= formError %> </p>
-  <% } %>
-
 </body>
 </html>
