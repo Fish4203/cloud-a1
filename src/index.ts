@@ -10,7 +10,7 @@ import { jwtSecret } from "./constants.ts";
 dotenv.config();
 
 const app: express.Express = express.default();
-const port = process.env.PORT || 80;
+const port = process.env.PORT || 8080;
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser(jwtSecret))
@@ -19,6 +19,6 @@ app.use('/', loginRouter);
 app.use('/', queryRouter);
 app.use('/', subRouter);
 
-app.listen(port, () => {
+app.listen('0.0.0.0:8080', () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);
 });
