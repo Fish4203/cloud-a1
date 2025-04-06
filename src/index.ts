@@ -19,6 +19,6 @@ app.use('/', loginRouter);
 app.use('/', queryRouter);
 app.use('/', subRouter);
 
-app.listen('0.0.0.0:8080', () => {
+app.listen(8080, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);
 });
