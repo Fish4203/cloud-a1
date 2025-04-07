@@ -5,7 +5,7 @@ import {
   ListTablesCommand,
   waitUntilTableNotExists,
   } from '@aws-sdk/client-dynamodb';
-import { CreateBucketCommand, DeleteBucketCommand, ListBucketsCommand, PutBucketPolicyCommand, S3Client, waitUntilBucketExists, waitUntilBucketNotExists } from '@aws-sdk/client-s3';
+import { CreateBucketCommand, PutBucketPolicyCommand, S3Client, waitUntilBucketExists } from '@aws-sdk/client-s3';
 
 const dbClient = new DynamoDBClient({ region: 'us-east-1' });
 const s3Client = new S3Client({ region: 'us-east-1' });

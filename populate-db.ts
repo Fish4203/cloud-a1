@@ -4,10 +4,9 @@ import {
 } from '@aws-sdk/client-dynamodb';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { randomUUID } from 'node:crypto';
+import https from 'https';
 
-import { transferFile } from './constants.ts';
-
-import songs from '../2025a1.json' with { type: "json" };
+import songs from './2025a1.json' with { type: "json" };
 const baseS3Url = 'https://ben-music-img.s3.us-east-1.amazonaws.com/'
 
 const dbClient = new DynamoDBClient({ region: 'us-east-1' });
@@ -31,6 +30,35 @@ for (let i = 0; i < 10; i++) {
       },
     },
   })
+};
+
+const transferFile = async (src: string) => {
+  const srcUrl = new URL(src);
+
+  return new Promise<Buffer>((resolve, reject) => {
+    // connect to source
+    https.get(srcUrl, (response) => {
+      if (response.statusCode !== 200) {
+        response.resume();
+        reject(`failed to download file (${response.statusCode})`);
+        return;
+      }
+
+      // @ts-ignore
+      const chunks = [];
+
+      response.on('data', (chunk) => {
+        chunks.push(chunk);
+      });
+
+      response.on("end", () => {
+        // @ts-ignore
+        resolve(Buffer.concat(chunks));
+      });
+    }).on('error', (error) => {
+      reject(`download request error (${error})`);
+    });
+  });
 };
 
 const userBulkWrite = new BatchWriteItemCommand({
