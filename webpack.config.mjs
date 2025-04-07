@@ -4,7 +4,7 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const srcDir = path.join(__dirname, 'lambda');
-const distDir = path.join(__dirname, 'dist');
+const distDir = path.join(__dirname, 'lambdaBundle');
 
 export default {
   mode: 'development',

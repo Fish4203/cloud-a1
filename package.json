@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.ts",
   "scripts": {
-    "build": "pnpm tsc && cp -r ./src/views ./dist/views",
+    "build": "webpack",
     "start": "ts-node src/index.ts",
     "dev": "nodemon src/index.ts",
     "db:create": "ts-node src/create-db.ts",
@@ -30,7 +30,10 @@
     "ejs": "^3.1.10",
     "express": "^4.21.2",
     "express-session": "^1.18.1",
-    "jsonwebtoken": "^9.0.2"
+    "jsonwebtoken": "^9.0.2",
+    "ts-loader": "^9.5.2",
+    "webpack": "^5.98.0",
+    "webpack-cli": "^6.0.1"
   },
   "devDependencies": {
     "@types/express": "^5.0.0",
