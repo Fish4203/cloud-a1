@@ -16,8 +16,6 @@ const port = process.env.PORT || 8080;
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser(jwtSecret))
 
-app.set('views', path.join(__dirname, 'views'));
-
 app.use('/', loginRouter);
 app.use('/', queryRouter);
 app.use('/', subRouter);
