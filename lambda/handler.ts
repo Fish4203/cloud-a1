@@ -1,5 +1,5 @@
 import { AttributeValue, BatchGetItemCommand, DeleteItemCommand, DynamoDBClient, GetItemCommand, PutItemCommand, QueryCommand, ScanCommand } from "@aws-sdk/client-dynamodb";
-
+import { Context, APIGatewayProxyResult, APIGatewayEvent } from 'aws-lambda';
 const dbClient = new DynamoDBClient({ region: 'us-east-1' });
 
 const LAMBDA_PATH = process.env.LAMBDA_PATH;
@@ -38,9 +38,10 @@ const generateResponse = (statusCode: number, body?: unknown) => {
     'Access-Control-Max-Age': '86400'
   };
 
-  const response: Response = {
+  const response: APIGatewayProxyResult = {
     statusCode,
-    headers
+    headers,
+    body: ""
   };
 
   if (body && response.headers) {
@@ -51,8 +52,9 @@ const generateResponse = (statusCode: number, body?: unknown) => {
   return response;
 };
 
-export const handler = async ({ body, httpMethod, path }: Event) => {
-  // quick-and-dirty CORS
+export const handler = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
+  const { body, httpMethod, path } = event;
+
   if (httpMethod === 'OPTIONS') {
     return generateResponse(200);
   }
@@ -80,7 +82,6 @@ export const handler = async ({ body, httpMethod, path }: Event) => {
       return generateResponse(404);
   }
 };
-
 
 const register = async (username: string, email: string, password: string) => {
   try {
