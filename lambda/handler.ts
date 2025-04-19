@@ -53,7 +53,7 @@ const generateResponse = (statusCode: number, body?: unknown) => {
 };
 
 export const handler = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
-  const { body, httpMethod, path } = event;
+  const { body, httpMethod } = event;
 
   if (httpMethod === 'OPTIONS') {
     return generateResponse(200);
@@ -64,19 +64,20 @@ export const handler = async (event: APIGatewayEvent, context: Context): Promise
   }
 
   const data = JSON.parse(body);
+  const { messageType } = data;
 
-  switch (path) {
-    case `${LAMBDA_PATH}/login`:
+  switch (messageType) {
+    case `login`:
       return await login(data['email'], data['password']);
-    case `${LAMBDA_PATH}/register`:
+    case `register`:
       return await register(data['username'], data['email'], data['password']);
-    case `${LAMBDA_PATH}/query`:
+    case `query`:
       return await query(data['ExpressionAttributeValues'], data['keyConditions']);
-    case `${LAMBDA_PATH}/subs`:
+    case `subs`:
       return await getSubs(data['email']);
-    case `${LAMBDA_PATH}/sub`:
+    case `sub`:
       return await sub(data['email'], data['title_album']);
-    case `${LAMBDA_PATH}/unsub`:
+    case `unsub`:
       return await unsub(data['email'], data['title_album']);
     default:
       return generateResponse(404);

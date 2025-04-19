@@ -12,7 +12,7 @@ router.get('/login', (req, res) => {
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
-  const response = await axios.post(`${apiIp}/login`, { email, password });
+  const response = await axios.post(apiIp, { messageType: 'login', email, password });
   const username = response.data['username'];
 
   if (username) {
@@ -31,7 +31,7 @@ router.get('/register', (req, res) => {
 router.post('/register', async (req, res) => {
   const { username, email, password } = req.body;
 
-  const response = await axios.post(`${apiIp}/register`, { username, email, password });
+  const response = await axios.post(apiIp, { messageType: 'register', username, email, password });
   if (response.status === 200) {
     res.redirect('/login');
   } else {

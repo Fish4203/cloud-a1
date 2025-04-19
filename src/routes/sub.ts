@@ -14,7 +14,7 @@ router.get('/', async (req, res) => {
 
   const { email } = decodedToken;
 
-  const response = await axios.post(`${apiIp}/subs`, { email });
+  const response = await axios.post(apiIp, { messageType: 'subs', email });
   const subs = response.data['subs'] as Music[];
 
   res.render('sub.ejs', { subs, formError: null, username: decodedToken.username });
@@ -29,7 +29,7 @@ router.get('/sub', async (req, res) => {
 
   const { email } = decodedToken;
   const { title_album } = req.query;
-  await axios.post(`${apiIp}/sub`, { email, title_album });
+  await axios.post(apiIp, { messageType: 'sub', email, title_album });
 
   res.redirect('/');
 });
@@ -44,7 +44,7 @@ router.get('/unsub', async (req, res) => {
   const { email } = decodedToken;
   const { title_album } = req.query;
 
-  await axios.post(`${apiIp}/unsub`, { email, title_album });
+  await axios.post(apiIp, { messageType: 'unsub', email, title_album });
 
   res.redirect('/');
 });

@@ -12,7 +12,7 @@ router.get('/query', async (req, res) => {
     return;
   }
 
-  const response = await axios.post(`${apiIp}/api/query`, {});
+  const response = await axios.post(apiIp, { messageType: 'query' });
   const music = response.data['music'] as Music[];
 
   res.render('query.ejs', { music, formError: undefined, username: decodedToken.username });
@@ -76,7 +76,7 @@ router.post('/query', async (req, res) => {
     return;
   }
 
-  const response = await axios.post(`${apiIp}/query`, { ExpressionAttributeValues, keyConditions });
+  const response = await axios.post(apiIp, { messageType: 'query', ExpressionAttributeValues, keyConditions });
   const music = response.data['music'] as Music[];
 
   res.render('query.ejs', { music, formError: music.length === 0 ? 'No result is retrieved. Please query again' : null, username: decodedToken.username });

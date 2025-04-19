@@ -47,4 +47,4 @@ export const decodeToken = (cookies: unknown) => {
   return null;
 }
 
-export const apiIp = 'https://5pacg2h7q0.execute-api.us-east-1.amazonaws.com/default/cool'
+export const apiIp = 'https://add9lp2ibl.execute-api.us-east-1.amazonaws.com/default/cool'
