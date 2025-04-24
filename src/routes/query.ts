@@ -45,7 +45,7 @@ router.post('/query', async (req, res) => {
     ExpressionAttributeValues = {
       ...ExpressionAttributeValues,
       ':year': {
-        S: year
+        N: year
       }
     }
     keyConditions.push('year = :year');
@@ -72,7 +72,7 @@ router.post('/query', async (req, res) => {
   }
 
   if (keyConditions.length === 0) {
-    res.render('query.ejs', { music: [], formError: 'No result is retrieved. Please query again' });
+    res.render('query.ejs', { music: [], formError: 'No result is retrieved. Please query again', username: decodedToken.username });
     return;
   }
 
